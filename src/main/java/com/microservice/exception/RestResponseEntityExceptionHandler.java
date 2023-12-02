@@ -19,4 +19,13 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 .build(), HttpStatus.valueOf(exception.getStatus()));
     }
 
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<ErrorResponse> RestClientException(RestClientException exception){
+
+        return  new ResponseEntity<>(new ErrorResponse().builder()
+//                .errorMessage(exception.getMessage())
+                .errorCode(exception.getErrorCode())
+                .build(), HttpStatus.NOT_FOUND);
+    }
+
 }
