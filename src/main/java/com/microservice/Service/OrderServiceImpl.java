@@ -11,6 +11,7 @@ import com.microservice.Repository.OrderRepository;
 import com.microservice.exception.OrderServiceCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,21 +21,25 @@ import java.time.Instant;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService{
+public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
 
     private final RestTemplate restTemplate;
+
     @Override
-    public long placeOrder(OrderRequest orderRequest) {
+    public long placeOrder(@NotNull OrderRequest orderRequest) {
 
         log.info("OrderServiceImpl | placeOrder is called");
+
 
         //Order Entity -> Save the data with Status Order Created
         //Product Service - Block Products (Reduce the Quantity)
         //Payment Service -> Payments -> Success-> COMPLETE, Else
         //CANCELLED
 
+
         log.info("OrderServiceImpl | placeOrder | Placing Order Request orderRequest : " + orderRequest.toString());
+
 
         log.info("OrderServiceImpl | placeOrder | Creating Order with Status CREATED");
         Order order = Order.builder()
@@ -93,6 +98,8 @@ public class OrderServiceImpl implements OrderService{
                 ProductResponse.class
         );
 
+
+
         log.info("OrderServiceImpl | getOrderDetails | Getting payment information form the payment Service");
         PaymentResponse paymentResponse
                 = restTemplate.getForObject(
@@ -100,11 +107,13 @@ public class OrderServiceImpl implements OrderService{
                 PaymentResponse.class
         );
 
+
         OrderResponse.ProductDetails productDetails
                 = OrderResponse.ProductDetails
                 .builder()
                 .productName(productResponse.getProductName())
                 .productId(productResponse.getProductId())
+                .quantity(productResponse.getQuantity())
                 .build();
 
         OrderResponse.PaymentDetails paymentDetails
@@ -127,6 +136,7 @@ public class OrderServiceImpl implements OrderService{
                 .build();
 
         log.info("OrderServiceImpl | getOrderDetails | orderResponse : " + orderResponse.toString());
+
 
         return orderResponse;
     }
